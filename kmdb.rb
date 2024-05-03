@@ -75,14 +75,30 @@
 
 # Delete existing data, so you'll start fresh each time this script is run.
 # Use `Model.destroy_all` code.
-# TODO!
+studios.destroy_all
+movies.destroy_all
+actors.destroy_all
+roles.destroy_all
 
 # Generate models and tables, according to the domain model.
-# TODO!
+rails generate model studio
+rails generate model movie 
+rails generate model actor 
+rails generate model role
 
 # Insert data into the database that reflects the sample data shown above.
 # Do not use hard-coded foreign key IDs.
-# TODO!
+new_studio = studio.new
+p new_studio
+new_studio["name"] = "Warner Bros."
+
+new_movie = movie.new
+p new_movie
+new_movie["title"] = "Batman Begins"
+new_movie["year_released"] = "2005"
+new_movie["rated"] = "PG-13"
+new_movie.save 
+p.new_movie
 
 # Prints a header for the movies output
 puts "Movies"
