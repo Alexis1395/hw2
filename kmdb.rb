@@ -75,30 +75,95 @@
 
 # Delete existing data, so you'll start fresh each time this script is run.
 # Use `Model.destroy_all` code.
-studios.destroy_all
-movies.destroy_all
-actors.destroy_all
-roles.destroy_all
+studio.destroy_all
+movie.destroy_all
+actor.destroy_all
+role.destroy_all
 
 # Generate models and tables, according to the domain model.
-rails generate model studio
-rails generate model movie 
-rails generate model actor 
-rails generate model role
+
+#rails generate model studio
+#rails generate model movie 
+#rails generate model actor 
+#rails generate model role
 
 # Insert data into the database that reflects the sample data shown above.
 # Do not use hard-coded foreign key IDs.
-new_studio = studio.new
-p new_studio
-new_studio["name"] = "Warner Bros."
 
-new_movie = movie.new
-p new_movie
-new_movie["title"] = "Batman Begins"
-new_movie["year_released"] = "2005"
-new_movie["rated"] = "PG-13"
-new_movie.save 
-p.new_movie
+Studios = studio.insert_all (
+    [{name: "Warner Bros."}]
+)
+movies = [
+    {title: "Batman Begins", 
+    year_released: 2005, 
+    rated: "PG-13", 
+    studio: "Warner Bros."},
+
+    {title: "The Dark Knight", 
+    year_released: 2008, 
+    rated: "PG-13", 
+    studio: "Warner Bros."},
+
+    {title: "The Dark Knight Rises", 
+    year_released: 2012, 
+    rated: "PG-13", 
+    studio: "Warner Bros."}
+]
+
+for movie in movies
+    studio = Studio.find_by(name: movie[:studio])
+    movie[:studio_id] = studio[:id]
+    movie.delete(:studio)
+end
+
+movies = Movie.insert_all(movies)
+# puts Movie.all.inspect
+
+actors = Actor.insert_all(
+    [
+        {name: "Christian Bale"},
+        {name: "Michael Caine"},
+        {name: "Liam Neeson"},
+        {name: "Katie Holmes"},
+        {name: "Gary Oldman"},
+        {name: "Heath Ledger"},
+        {name: "Aaron Eckhart"},
+        {name: "Maggie Gyllenhaal"},
+        {name: "Tom Hardy"},
+        {name: "Joseph Gordon-Levitt"},
+        {name: "Anne Hathaway"}
+    ]
+)
+
+roles = [
+    {title: "Batman Begins", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "Batman Begins", actor: "Michael Caine", character_name: "Alfred"},
+    {title: "Batman Begins", actor: "Liam Neeson", character_name: "Ra's Al Ghul"},
+    {title: "Batman Begins", actor: "Katie Holmes", character_name: "Rachel Dawes"},
+    {title: "Batman Begins", actor: "Gary Oldman", character_name: "Commissioner Gordon"},
+    {title: "The Dark Knight", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "The Dark Knight", actor: "Heath Ledger", character_name: "Joker"},
+    {title: "The Dark Knight", actor: "Aaron Eckhart", character_name: "Harvey Dent"},
+    {title: "The Dark Knight", actor: "Michael Caine", character_name: "Alfred"},
+    {title: "The Dark Knight", actor: "Maggie Gyllenhaal", character_name: "Rachel Dawes"},
+    {title: "The Dark Knight Rises", actor: "Christian Bale", character_name: "Bruce Wayne"},
+    {title: "The Dark Knight Rises", actor: "Gary Oldman", character_name: "Commissioner Gordon"},
+    {title: "The Dark Knight Rises", actor: "Tom Hardy", character_name: "Bane"},
+    {title: "The Dark Knight Rises", actor: "Joseph Gordon-Levitt", character_name: "John Blake"},
+    {title: "The Dark Knight Rises", actor: "Anne Hathaway", character_name: "Selina Kyle"}
+]
+
+for role in roles
+    movie = Movie.find_by(title: role[:title])
+    role[:movie_id] = movie[:id]
+    role.delete(:title)
+
+    actor = Actor.find_by(name: role[:actor])
+    role[:actor_id] = actor[:id]
+    role.delete(:actor)
+end
+
+roles = Role.insert_all(roles)
 
 # Prints a header for the movies output
 puts "Movies"
@@ -106,7 +171,10 @@ puts "======"
 puts ""
 
 # Query the movies data and loop through the results to display the movies output.
-# TODO!
+for movie in Movie.all
+    studio = Studio.find_by(id: movie[:studio_id])
+    puts "-- #{movie[:title]}\t#{movie[:year_released]}\t#{movie[:rated]}\t#{studio[:name]}"
+end
 
 # Prints a header for the cast output
 puts ""
@@ -115,4 +183,8 @@ puts "========"
 puts ""
 
 # Query the cast data and loop through the results to display the cast output for each movie.
-# TODO!
+for role in Role.all
+    movie = Movie.find_by(id: role[:movie_id])
+    actor = Actor.find_by(id: role[:actor_id])
+    puts "-- #{movie[:title]}\t#{actor[:name]}\t#{role[:character_name]}"
+end
